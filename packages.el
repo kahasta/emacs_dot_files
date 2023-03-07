@@ -41,10 +41,16 @@
 
 ;; Evil leader
 (use-package evil-leader
+  :ensure t
   :init
   (global-evil-leader-mode)
   (evil-leader/set-leader "<SPC>")
   )
+
+(use-package general
+  :config
+  (general-evil-setup t)
+)
 
 ;; Download evil
 (unless (package-installed-p 'evil)
@@ -60,7 +66,6 @@
 (add-hook 'foo-mode-hook #'rainbow-delimiters-mode)
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
-;; Dired+
 
 
 ;;Focus
@@ -69,8 +74,8 @@
 (focus-read-only-mode 1)
 
 ;;Helm
-;; (use-package helm :straight t
-;;   )
+(use-package helm :straight t
+  )
 (use-package helm
   :ensure t
   :init
@@ -80,6 +85,7 @@
   (global-set-key (kbd "C-x C-f") #'helm-find-files)
   (helm-mode 1)
   )
+
 
 ;; Projectile
 (use-package projectile
@@ -92,6 +98,25 @@
   :ensure t
   :config
   (helm-projectile-on))
+
+;; Ivy
+(use-package ivy
+  :diminish
+  :bind (("C-s" . swiper)
+	 :map ivy-minibuffer-map
+	 ("TAB" . ivy-alt-done)
+	 ("C-l" . ivy-alt-done)
+	 ("C-j" . ivy-next-line)
+	 ("C-k" . ivy-previous-line)
+	 :map ivy-switch-buffer-map
+	 ("C-k" . ivy-previous-line)
+	 ("C-l" . ivy-done)
+	 ("C-d" . ivy-switch-buffer-kill)
+	 :map ivy-reverse-i-search-map
+	 ("C-k" . ivy-previous-line)
+	 ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (ivy-mode 1))
 
 ;;Lsp
 ;; (unless (package-installed-p 'lsp-mode)
@@ -137,20 +162,29 @@
   ;; (setq vertico-count 20)
 
   ;; Grow and shrink the Vertico minibuffer
-  ;; (setq vertico-resize t)
+  (setq vertico-resize t)
 
   ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
   ;; (setq vertico-cycle t)
   )
 
 ;; Persist history over Emacs restarts. Vertico sorts by history position.
-(use-package savehist
-  :init
-  (savehist-mode))
+;; (use-package savehist
+;;   :init
+;;   (savehist-mode)
+;;   (setq savehist-additional-variables '(kill-ring search-ring regexp-search-ring))
+;;   (setq savehist-file "~/.emacs-saves/tmp/savehist")
+;;   )
 
-;; Counsel 
+;; Load last session
+(use-package psession
+  :config
+  (psession-mode 1)
+  (psession-savehist-mode 1))
+
+;; Counsel
 (use-package counsel
-  :bind (("M-x" . counsel-M-x)
+  :bind (("M-x" . counsel-M-x  )
 	 ("C-x b" . counsel-ibuffer)
 	 ("C-x C-f" . counsel-find-file)
 	 :map minibuffer-local-map
@@ -175,10 +209,6 @@
         '(read-only t cursor-intangible t face minibuffer-prompt))
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
-  ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
-  ;; Vertico commands are hidden in normal buffers.
-  ;; (setq read-extended-command-predicate
-  ;;       #'command-completion-default-include-p)
 
   ;; Enable recursive minibuffers
   (setq enable-recursive-minibuffers t))
@@ -219,7 +249,7 @@
 ;;Avy go to char
 (use-package avy
   :init
-  (global-set-key (kbd "C-:") 'avy-goto-char))
+  (global-set-key (kbd "C-;") 'avy-goto-char))
 
 
 ;; Company
@@ -294,3 +324,15 @@
   :init (setq markdown-command "multimarkdown")
   :bind (:map markdown-mode-map
               ("C-c C-e" . markdown-do)))
+
+;; Alternative Help
+(use-package helpful
+  :ensure t
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-describe-variable-function #'helpful-variable)
+  :bind
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-key] . helpful-key))
