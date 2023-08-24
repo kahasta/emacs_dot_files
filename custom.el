@@ -8,6 +8,9 @@
 (menu-bar-mode -1)
 (blink-cursor-mode 0)
 (setq visible-bell t)
+(setq mouse-wheel-follow-mouse t
+      mouse-wheel-progressive-speed t
+      mouse-wheel-scroll-amount '(3 ((shift) . 3)))
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 ;; Display number lines
@@ -29,7 +32,7 @@
 
 
 ;; Auto pair for ()
-(electric-pair-mode t)
+;; (electric-pair-mode t)
 (hl-line-mode -1)
 (recentf-mode 1)
 (setq history-length 25)
@@ -46,8 +49,12 @@
 (setq use-dialog-box nil)
 ;; Auto update buffer if file is changed out emacs
 (global-auto-revert-mode 1)
-;; Auto update Dired and other buffers
+(setq auto-save-list-file-prefix nil)
+(setq auto-save-file-name-transforms nil)
 (setq global-auto-revert-non-file-buffers t)
+;;отключить блокировку файлов, используя опцию "create-lockfiles" в системе
+(setq create-lockfiles nil)
+;; Auto update Dired and other buffers
 (setq backup-directory-alist '(("." . "~/.emacs-saves")
 			       backup-by-copying t    ; Don't delink hardlinks
 			       version-control t      ; Use version numbers on backups
@@ -56,3 +63,13 @@
 			       kept-old-versions 5    ; and how many of the old
 			       )
       )
+;; (server-start)
+
+(if (daemonp)
+    (add-hook 'after-make-frame-functions (lambda (frame)
+                                            (when (eq (length (frame-list)) 2)
+                                              (progn
+                                                (select-frame frame)
+                                                (if (display-graphic-p)
+                                                    (load-theme 'doom-one t)
+                                                  (disable-theme 'doom-one)(load-theme standart-dark)))))))

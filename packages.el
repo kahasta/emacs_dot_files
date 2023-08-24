@@ -39,6 +39,56 @@
 (straight-use-package 'use-package)
 (setq straight-use-package-by-default t)
 
+(use-package general
+  :config
+  (general-evil-setup t)
+  )
+;; now usable `jj` is possible!
+;; Escape key changed on jj in insert evil mode 
+(general-imap "j"
+  (general-key-dispatch 'self-insert-command
+    :timeout 0.25
+    "j" 'evil-normal-state))
+
+(defun kahasta/evil-hook ()
+  (dolist (mode '(custom-mode
+		  eshell-mode
+		  get-rebase-mode
+		  erc-mode
+		  circle-server-mode
+		  circle-chat-mode
+		  circle-query-mode
+		  sauron-mode
+		  term-mode
+		  ))
+    (add-to-list 'evil-emacs-state-modes mode)))
+
+;; Evil mode
+(use-package evil
+  :init
+  (setq evil-want-keybinding nil)
+  (setq evil-want-integration t)
+  (setq evil-want-C-u-scroll t)
+  (setq evil-want-C-i-jump nil)
+  :hook (evil-mode . kahasta/evil-hook)
+  :config
+  (evil-mode 1)
+  ;; (define-key evil-insert-state-map (kbd "jJ") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+
+  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+
+  (evil-set-initial-state 'messages-buffer-mode 'normal)
+  (evil-set-initial-state 'dashboard-mode 'normal)
+  )
+
+;; Evil collection - во всех режимах и окнах доступно сочетание клавишь как в Vim
+(use-package evil-collection
+  :after evil
+  :config
+  (evil-collection-init))
+
 ;; Evil leader
 (use-package evil-leader
   :ensure t
@@ -47,33 +97,31 @@
   (evil-leader/set-leader "<SPC>")
   )
 
-(use-package general
-  :config
-  (general-evil-setup t)
-)
-
-;; Download evil
-(unless (package-installed-p 'evil)
-  (package-install 'evil))
-
-;; Enable evil
-(require 'evil)
-(evil-mode 1)
-
 ;;Rainbow
 (unless (package-installed-p 'rainbow-delimiters)
   (package-install 'rainbow-delimiters))
 (add-hook 'foo-mode-hook #'rainbow-delimiters-mode)
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
-
+;; Hydra
+(use-package hydra)
 
 ;;Focus
-(unless (package-installed-p 'focus)
-  (package-install 'focus))
-(focus-read-only-mode 1)
+;; (unless (package-installed-p 'focus)
+;;   (package-install 'focus))
+;; (focus-read-only-mode 1)
 
-;;Helm
+;; Dimmer
+(use-package dimmer
+  :config
+  (dimmer-configure-which-key)
+  (dimmer-configure-helm)
+  (dimmer-mode t)
+  :custom
+  (dimmer-fraction 0.5)
+  )
+
+;; Helm
 (use-package helm :straight t
   )
 (use-package helm
@@ -129,6 +177,8 @@
   :config
   (lsp-enable-which-key-integration t))
 
+
+
 ;;lang hooks
 (add-hook 'c-mode-hook #'lsp)
 
@@ -169,18 +219,18 @@
   )
 
 ;; Persist history over Emacs restarts. Vertico sorts by history position.
-;; (use-package savehist
-;;   :init
-;;   (savehist-mode)
-;;   (setq savehist-additional-variables '(kill-ring search-ring regexp-search-ring))
-;;   (setq savehist-file "~/.emacs-saves/tmp/savehist")
-;;   )
+(use-package savehist
+  :init
+  (savehist-mode)
+  (setq savehist-additional-variables '(kill-ring search-ring regexp-search-ring))
+  (setq savehist-file "~/.emacs-saves/tmp/savehist")
+  )
 
 ;; Load last session
-(use-package psession
-  :config
-  (psession-mode 1)
-  (psession-savehist-mode 1))
+					; (use-package psession
+					;   :config
+					;   (psession-mode 1)
+					;   (psession-savehist-mode 1))
 
 ;; Counsel
 (use-package counsel
@@ -270,7 +320,13 @@
 
 ;; Magit
 (use-package magit
-  :ensure t)
+  :ensure t
+  :commands (magit-status magit-get-current-branch)
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+  )
+(use-package evil-magit
+  :after magit)
 
 ;; QuickRun
 (use-package quickrun)
@@ -336,3 +392,41 @@
   ([remap describe-command] . helpful-command)
   ([remap describe-variable] . counsel-describe-variable)
   ([remap describe-key] . helpful-key))
+
+;; Dashboard
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook))
+
+;; Save session
+;; (use-package workgroups2
+;;   :config
+;;   (workgroups-mode 1))
+(use-package nix-mode
+  :config
+  (nix-mode))
+
+(use-package lua-mode
+  :config
+  (lua-mode))
+
+(use-package luarocks)
+;; (use-package prettier)
+; Golang
+;; (use-package go-mode)
+;; (use-package dap-mode)
+;; (use-package company-go :requires company)
+;; (use-package counsel-gtags)
+;; (use-package eldoc)
+;; (use-package ggtags)
+;; (use-package go-eldoc)
+;; (use-package go-fill-struct)
+;; (use-package go-gen-test)
+;; (use-package go-guru)
+;; (use-package go-impl)
+;; (use-package go-rename)
+;; (use-package go-tag)
+;; (use-package godoctor)
+;; (use-package popwin)
+
