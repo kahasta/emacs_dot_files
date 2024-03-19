@@ -33,9 +33,9 @@
   "bk" '(kill-this-buffer :which-key "kill this buffer")
   "TAB" '(switch-to-next-buffer :which-key "next buffer")
   ;; Code actions
-  "c" '(:ignore t :which-key "code")
-  "cf" '(format-all-buffer :which-key "format all")
-  "cr" '(quickrun :which-key "run code")
+  "l" '(:ignore t :which-key "code")
+  "lf" '(format-all-buffer :which-key "format all")
+  "lr" '(quickrun :which-key "run code")
   ;; Open
   "o" '(:ignore t :which-key "open")
   "or" '(recentf-open-files :which-key "open recent files")
@@ -60,6 +60,9 @@
   "gf" '(magit-fetch :which-key "fetch")
   "gF" '(magit-fetch-all :which-key "fetch all")
   "gr" '(magit-rebase :which-key "rebase")
+
+  "w" '(save-buffer :which-key "save buffer")
+  "c" '(kill-this-buffer :which-key "close")
 
   )
 

@@ -5,7 +5,7 @@
 (tool-bar-mode -1)
 (tooltip-mode -1)
 (set-fringe-mode 10)
-(menu-bar-mode -1)
+(menu-bar-mode 1)
 (blink-cursor-mode 0)
 (setq visible-bell t)
 (setq mouse-wheel-follow-mouse t
@@ -15,6 +15,11 @@
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 ;; Display number lines
 (column-number-mode)
+
+(global-hl-line-mode +1)
+(show-paren-mode 1)
+(setq show-paren-delay 0)
+
 (global-display-line-numbers-mode t)
 ;; Enable line numbers for some modes
 (dolist (mode '(text-mode-hook
@@ -73,3 +78,13 @@
                                                 (if (display-graphic-p)
                                                     (load-theme 'doom-one t)
                                                   (disable-theme 'doom-one)(load-theme standart-dark)))))))
+(setq geiser-active-implementations '(guile))
+(setq geiser-guile-binary "/usr/bin/guile")
+
+(setq inferior-lisp-program "/usr/bin/sbcl")
+
+
+(add-hook 'sly-mode-hook
+          (lambda ()
+            (unless (sly-connected-p)
+              (save-excursion (sly)))))

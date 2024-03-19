@@ -6,12 +6,28 @@
 (add-to-list 'package-archives
 	     '("melpa" . "https://melpa.org/packages/"))
 
+(add-to-list 'package-archives
+	     '("nongnu" . "https://elpa.nongnu.org/nongnu/"))
 
 ;; (add-to-list 'load-path "~/.emacs.d/dired-plus")
 ;; (require 'dired+)
 
 (package-initialize)
 ;;(package-refresh-contents)
+(eval-when-compile (require 'use-package))
+(setq use-package-verbose t
+      native-comp-async-report-warnings-errors nil)
+
+;;; ASYNC
+;; Emacs look SIGNIFICANTLY less often which is a good thing.
+;; asynchronous bytecode compilation and various other actions makes
+(use-package async
+  :ensure t
+  :after dired
+  :init
+  (dired-async-mode 1))
+
+
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
@@ -44,7 +60,7 @@
   (general-evil-setup t)
   )
 ;; now usable `jj` is possible!
-;; Escape key changed on jj in insert evil mode 
+;; Escape key changed on jj in insert evil mode
 (general-imap "j"
   (general-key-dispatch 'self-insert-command
     :timeout 0.25
@@ -173,10 +189,42 @@
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
   :init
-  (setq lsp-keymap-prefix "C-l")
+  (setq lsp-keymap-prefix "C-c l")
+  :hook (
+	 (prog-mode . lsp)
+	 (lsp-mode . lsp-enable-which-key-integration))
   :config
   (lsp-enable-which-key-integration t))
 
+;; jump to char C-;
+(use-package iedit)
+
+
+(use-package sideline
+  :init
+  (setq sideline-backends-left-skip-current-line t   ; don't display on current line (left)
+        sideline-backends-right-skip-current-line t  ; don't display on current line (right)
+        sideline-order-left 'down                    ; or 'up
+        sideline-order-right 'up                     ; or 'down
+        sideline-format-left "%s   "                 ; format for left aligment
+        sideline-format-right "   %s"                ; format for right aligment
+        sideline-priority 100                        ; overlays' priority
+        sideline-display-backend-name t))            ; display the backend name
+
+
+;; lsp-rename and etc
+
+;; optionally
+(use-package lsp-ui :commands lsp-ui-mode)
+;; if you are helm user
+(use-package helm-lsp :commands helm-lsp-workspace-symbol)
+;; if you are ivy user
+(use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+(use-package lsp-treemacs :commands lsp-treemacs-errors-list)
+
+;; optionally if you want to use debugger
+;; (use-package dap-mode)
+;; (use-package dap-LANGUAGE) to load the dap adapter for your language
 
 
 ;;lang hooks
@@ -188,6 +236,7 @@
 ;;Evil commentary
 (use-package evil-commentary
   :config (evil-commentary-mode))
+
 
 ;;Flycheck
 (use-package flycheck
@@ -309,13 +358,13 @@
   (global-set-key (kbd "<tab>") #'company-indent-or-complete-common)
   (with-eval-after-load 'company
     (define-key company-active-map
-      (kbd "TAB")
-      #'company-complete-common-or-cycle)
+		(kbd "TAB")
+		#'company-complete-common-or-cycle)
     (define-key company-active-map
-      (kbd "<backtab>")
-      (lambda ()
-        (interactive)
-        (company-complete-common-or-cycle -1))))
+		(kbd "<backtab>")
+		(lambda ()
+		  (interactive)
+		  (company-complete-common-or-cycle -1))))
   )
 
 ;; Magit
@@ -330,6 +379,34 @@
 
 ;; QuickRun
 (use-package quickrun)
+
+;;for Guile
+(use-package geiser-guile
+  :config
+  (setq geiser-default-implementation 'guile)
+  (setq geiser-active-implementations '(guile))
+  (setq geiser-implementations-alist '(((regexp "\\.scm$") guile))))
+(use-package flycheck-guile)
+
+
+;; Racket
+(use-package racket-mode)
+
+;; for Common Lisp
+;; (use-package slime)
+(use-package sly)
+(use-package hl-block-mode
+  :commands (hl-block-mode)
+  :config
+  (setq hl-block-bracket nil)    ;; Match all brackets.
+  (setq hl-block-single-level t) ;; Only one pair of brackets.
+  (setq hl-block-style 'bracket) ;; Highlight only the brackets.
+  :hook ((prog-mode) . hl-block-mode))
+;; (use-package sly-quicklisp)
+;; (use-package sly-quicklisp)
+;; (use-package sly-asdf)
+
+
 
 ;; Nim lang
 (use-package nim-mode
@@ -413,7 +490,7 @@
 
 (use-package luarocks)
 ;; (use-package prettier)
-; Golang
+					; Golang
 ;; (use-package go-mode)
 ;; (use-package dap-mode)
 ;; (use-package company-go :requires company)
@@ -429,4 +506,4 @@
 ;; (use-package go-tag)
 ;; (use-package godoctor)
 ;; (use-package popwin)
-
+(add-hook 'after-init-hook #'global-flycheck-mode)
